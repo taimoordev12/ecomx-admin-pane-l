@@ -1,12 +1,14 @@
-
-import React  from "react";
-import OrderRow from '../../components/Order-Row/Order-Row.component';
+import React,{ useState, useEffect } from 'react'
+import Header from "components/Headers/Header.js";
 import {connect} from 'react-redux';
-import {getOrders} from '../../Redux/OrderReducer/OrderActions';
-import PropTypes from 'prop-types';
+import { getProducts} from '../../Redux/ProductReducer/ProductAction';
+import {Link} from 'react-router-dom';
+import ProductRow from '../../components/ProductRow/ProductRow.component';
+import { withRouter } from "react-router";
 
 // reactstrap components
 import {
+  Col,
   Badge,
   Card,
   CardHeader,
@@ -23,45 +25,41 @@ import {
   Table,
   Container,
   Row,
-  UncontrolledTooltip
+  Button 
 } from "reactstrap";
-// core components
-import Header from "components/Headers/Header.js";
 
-class Tables extends React.Component {
- componentDidMount(){
-   this.props.getOrders();
- }
-  
-  render() {
-    const Orders = this.props.Orders.orders;
-    console.log(Orders);
+const Products=(props)=> {
 
+  useEffect(() => {
+    props.getProducts();
+    console.log(props.Products.products);
+   
+  },[]);
     return (
-      <>
-        <Header />
-        {/* Page content */}
-        <Container className="mt--7" fluid>
-          {/* Table */}
+        <div>
+              <Header /> 
+              <Container className=" mt-5" fluid>
           <Row>
-            <div className="col">
-              <Card className="shadow">
+            <Col md={!2}>
+            <Button onClick={()=>props.history.push('/AddProduct')} color="primary" type="button">
+         Add New
+        </Button>
+            <Card className="shadow">
                 <CardHeader className="border-0">
-                  <h3 className="mb-0">Orders</h3>
+                  <h3 className="mb-0">Products</h3>
                 </CardHeader>
                 <Table className="align-items-center table-flush" responsive>
                   <thead className="thead-light">
                     <tr>
-                      <th scope="col">Order </th>
-                      <th scope="col">Order Value</th>
+                      <th scope="col">Product Name </th>
+                      <th scope="col">Price</th>
                       <th scope="col">Status</th>
-                      <th scope="col">Payment Type</th>
+                      <th scope="col">Catagory</th>
                       <th scope="col" />
                     </tr>
                   </thead>
                   <tbody>
-                   {Orders.map(order=><OrderRow key={order._id}  {...order}/>)} 
-                 
+                {props.Products.products.map(prod=><ProductRow key={prod._id} {...prod}/>)}
                    
                   </tbody>
                 </Table>
@@ -118,20 +116,20 @@ class Tables extends React.Component {
                   </nav>
                 </CardFooter>
               </Card>
-            </div>
+            </Col>
+            
+              
+        
+          
           </Row>
-         
-        </Container>
-      </>
-    );
-  }
-}
-Tables.propTypes= {
-  getOrders:PropTypes.func.isRequired,
-  Orders:PropTypes.object.isRequired, 
+
+          </Container>
+
+        </div>
+    )
 }
 const mapStateToProps =(state)=>({
-  Orders:state.Order
+  Products:state.Product
 });
 
-export default connect(mapStateToProps, {getOrders})(Tables);
+export default  connect(mapStateToProps, {getProducts})(withRouter(Products));

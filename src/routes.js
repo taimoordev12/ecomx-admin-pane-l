@@ -1,11 +1,14 @@
 
 import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
-import Maps from "views/examples/Maps.js";
 import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
 import Tables from "views/examples/Tables.js";
 import Banners from "views/examples/Banners.js";
+import Setting from 'views/examples/Setting';
+import Products from 'views/examples/Products';
+import Catagories from 'views/examples/Catagories';
+
 var routes = [
   {
     path: "/index",
@@ -25,9 +28,17 @@ var routes = [
     path: "/products",
     name: "Products",
     icon: "ni ni-pin-3 text-orange",
-    component: Maps,
+    component:Products ,
     layout: "/admin"
   },
+  {
+    path: "/Catagories",
+    name: "Catagories",
+    icon: "ni ni-pin-3 text-orange",
+    component:Catagories ,
+    layout: "/admin"
+  },
+  
   {
     path: "/analytics",
     name: "Analytics",
@@ -44,11 +55,11 @@ var routes = [
   },
   
   {
-    path: "/login",
+    path: "/setting",
     name: "Setting",
     icon: "ni ni-key-25 text-info",
-    component: Login,
-    layout: "/auth"
+    component: Setting,
+    layout: "/admin"
   },
  
   {
@@ -56,6 +67,13 @@ var routes = [
     name: "Facebook Shop",
     icon: "ni ni-circle-08 text-pink",
     component: Register,
+    layout: "/admin"
+  },
+  {
+    path: "/login",
+    name: "Setting",
+    icon: "ni ni-key-25 text-info",
+    component: Login,
     layout: "/auth"
   }
 ];
