@@ -99,7 +99,7 @@ onChange(e) {
 
         return (
         <div>
-            <div className="card" style={{width: '18rem'}}>
+            <div className="card" >
   <img className="card-img-top" src={this.state.img.length<1?"https://via.placeholder.com/100":this.state.img[0].imageData} alt="Card image cap" />
   <div className="card-body text-center">
     <h1 className="card-title">Upload logo</h1>

@@ -1,16 +1,19 @@
 import React,{useState,useEffect} from 'react'
 import ImageUploader from 'react-images-upload';
 import axios from 'axios';
-import MultiSelect from "react-multi-select-component";
+import Select from 'react-select'
+import CreatableSelect from 'react-select/creatable';
+
 
 
 
 import {
    Card,
     Input,
-   Form,
+     Badge,
    Label,
-   Button
+   Button,
+   Spinner
   } from "reactstrap";
 import RichEditor from 'components/TextEditor/TextEditor.component';
   
@@ -22,6 +25,8 @@ const NewProduct=()=> {
   
     
      const [variant1Check, setVariant1Check] = useState(false);
+     const [discountPriceFlag, setdiscountPriceFlag] = useState(false);
+
     const [variant2Check, setVariant2Check] = useState(false);
     const [catagoryData, setCatagoryData] = useState([]);
     const [selectedCatagory, setSelectedCatagories] = useState([]);
@@ -29,12 +34,17 @@ const NewProduct=()=> {
     const [ProductData, setProductData] = useState({});
     const [ProductImages, setProductImages] = useState([]);
     const [ProductDiscription, setProductDiscription] = useState({});
+    const [variantOptions, setvariantOptions] = useState([]);
+    const [variant1Options, setvariant1Options] = useState([]);
+    const [LoadingOption, setLoadingOption] = useState(false);
+
+
 
     const currentvalue=(Texthtml)=>{
         setProductDiscription(Texthtml);
         //setProductData({description:Texthtml});
         } 
-
+     
      const onDrop=(picture)=> {
         setProductImages(
             ProductImages.concat(picture)
@@ -50,43 +60,106 @@ const NewProduct=()=> {
     
     
      }
-
-    //  let data=new FormData();
-    //  data.append('category',formsInputs.vehicleType);
+     const selectedCatagoryDataModification=()=> {
+         const finalSelectedCatagoryData =[];
+         selectedCatagory.map(data=>finalSelectedCatagoryData.push(data.label));
+          return finalSelectedCatagoryData;
+    }
      
-    // for (const file of adPhotos.images) {
-    //  data.append('images',file);
-    // }
+   const handleVariantOptionChange = (newValue , actionMeta ) => {
+      console.log(newValue);
+      const newValueArray=[];
+      newValue.map(data=>newValueArray.push(data.label));
+      setvariantOptions(newValueArray);
+
+    };
+    const handleVariantOptionChange1 = (newValue , actionMeta ) => {
+      console.log(newValue);
+      const newValueArray=[];
+      newValue.map(data=>newValueArray.push(data.label));
+      setvariant1Options(newValueArray);
+    
+    };
+ 
   const  HandleSubmit =  event=> {
     event.preventDefault();
+    setLoadingOption(true);
     console.log('im clicked');
-    let data=new FormData();
+  const CatagoryArrayData=selectedCatagoryDataModification();
 
-     data.append('name',ProductData.name); 
-  //  data.append('description',ProductDiscription);   
 
-    const config = {
-        headers: {
-            'content-type': 'multipart/form-data'
-        }
-    };
-    console.log(ProductData);
-    axios.post('/api/products',{
-        ...ProductData
-    },config)
-      .then(function (response) {
-        console.log(response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-      console.log('im clicked');
+
 
  
-      
-      
-       
+    
+     const data=new FormData();
+    
+   
+      data.append('name',ProductData.name); 
+      data.append('description',ProductDiscription);   
+
+      data.append('price',ProductData.price); 
+      data.append('Discountprice',ProductData.Discountprice); 
+      data.append('inventory',ProductData.inventory); 
+
+      data.append('Variant1',ProductData.Variant1);
+
+      for (const Voptions0 of variantOptions) {
+        data.append('Variant1options',Voptions0 ); 
+      }
+
+     data.append('Variant1price',ProductData.Variant1price); 
+
+     data.append('Variant1Discountprice',ProductData.Variant1Discountprice); 
+
+      data.append('Variant2',ProductData.Variant2);
+
+      for (const Voptions of variant1Options) {
+        data.append('Variant2options',Voptions); 
+      }
+  
+
+      data.append('variant2price',ProductData.variant2price); 
+
+     data.append('variant2Discountprice',ProductData.variant2Discountprice); 
+     if(catagoryData.length < 1 ) {
+      data.append('CatagoryData',[catagoryData]); 
+    
+    }
+      else{
+
+     for (const CatagoryData of CatagoryArrayData) {
+      data.append('CatagoryData',CatagoryData);
+     }
+    }
+
+
+     data.append('weight',ProductData.weight); 
+
+     for (const file of ProductImages) {
+      data.append('ProductImages',file);
+     }
+     const config = {
+        headers: { 'Content-Type': 'multipart/form-data',
+     },
+
+
+     };
+
+    
+
+     axios.post("/api/products",data,config
+  ).then(res=>{
+    if(res.data.success===1){
+      setLoadingOption(false);
+    }
+  })
+
+
+
+     
         }
+        
     useEffect(() => {
         axios.get('/api/catagories')
     .then(function (res) {
@@ -102,12 +175,18 @@ const NewProduct=()=> {
       // always executed
     });
       },[]);
+
      const handleChange = event => {
         const {name, value} = event.target;
-        setProductData({[name]:value});
+        setProductData({...ProductData,
+          [name]:value});
+         
       }
+   const   handleCatagoryChange = (selectedOptions) => {
+    setSelectedCatagories(selectedOptions);
+      }
+     
 
-    
 
       return (
         
@@ -164,6 +243,19 @@ const NewProduct=()=> {
                   onChange={handleChange}
                 />  
                </div>
+               {discountPriceFlag ?<Badge color="danger">Discount price can't be greater than actual price</Badge>:''}  
+               <Label className="mt-3"><strong>Enter Inventory (No of products in stock)</strong> </Label>
+       
+                   <Input
+                  className="form-control-alternative mb-3 "
+                  id="inventory"
+                  placeholder="10 etc"
+                  type="number"
+                  name="inventory"
+                  value={ProductData.inventory}
+                  onChange={handleChange}
+                />  
+
                <div className="custom-control custom-checkbox mb-3">
           <input
             className="custom-control-input"
@@ -189,24 +281,19 @@ const NewProduct=()=> {
           value={ProductData.Variant1}
           onChange={handleChange}
         />  
-       <Label>Enter comma seperated values e.g(blue,green,red)</Label>
-       <Input
-       className="form-control-alternative mb-3 "
-       id="Variant1options"
-       placeholder="blue,green,red"
-       type="text"
-       name="Variant1options"
-       value={ProductData.Variant1options}
-          onChange={handleChange}
-
-     /> <div className="d-flex">
+       <Label>Enter values e.g(blue,green,red)</Label>
+       <CreatableSelect
+        isMulti
+        onChange={handleVariantOptionChange}
+      />
+     <div className="d-flex">
       <Input
                   className="form-control-alternative mb-3 "
                   id="variant1price"
                   placeholder="Enter Variant  Price"
                   type="number"
-                  name="variant1price"
-                  value={ProductData.variant1price}
+                  name="Variant1price"
+                  value={ProductData.Variant1price}
                   onChange={handleChange}
                 />   
                   <Input
@@ -214,11 +301,24 @@ const NewProduct=()=> {
                   id="variant1Discountprice"
                   placeholder="Enter Discounted Variant Price"
                   type="number"
-                  name="variant1Discountprice"
-                  value={ProductData.variant1Discountprice}
+                  name="Variant1Discountprice"
+                  value={ProductData.Variant1Discountprice}
                   onChange={handleChange}
                 />   
                 </div>
+
+                <Label className="mt-3"><strong>Enter Inventory for variant (No of products in stock)</strong> </Label>
+       
+       <Input
+      className="form-control-alternative mb-3 "
+      id="Variant1inventory"
+      placeholder="10 etc"
+      type="number"
+      name="Variant1inventory"
+      value={ProductData.Variant1inventory}
+      onChange={handleChange}
+    />  
+                
          <div className="custom-control custom-checkbox mb-3 mt-3">
           <input
             className="custom-control-input"
@@ -248,15 +348,11 @@ const NewProduct=()=> {
           onChange={handleChange}
         />  
        <Label className="  mt-3 " >Enter comma seperated values e.g(small,large,medium)</Label>
-       <Input
-       className="form-control-alternative mb-3 "
-       id="Variant2options"
-       placeholder="small,large,medium"
-       type="text"
-       name="Variant2options"
-       value={ProductData.Variant2options}
-       onChange={handleChange}
-     />  <div className="d-flex">
+       <CreatableSelect
+        isMulti
+        onChange={handleVariantOptionChange1}
+      />
+     <div className="d-flex">
      <Input
                  className="form-control-alternative mb-3 "
                  id="variant2price"
@@ -277,15 +373,31 @@ const NewProduct=()=> {
                  onChange={handleChange}
                />   
                </div>
+               <Label className="mt-3"><strong>Enter Inventory for variant 2 (No of products in stock)</strong> </Label>
+       
+       <Input
+      className="form-control-alternative mb-3 "
+      id="Variant2inventory"
+      placeholder="10 etc"
+      type="number"
+      name="Variant2inventory"
+      value={ProductData.Variant2inventory}
+      onChange={handleChange}
+    />  
         </div>
         :''}
                <Label className="  mt-3 " ><strong> Assign this product to a catagory</strong></Label>
-       <MultiSelect
-        options={CatagoryOptionsData }
-        value={selectedCatagory}
-        onChange={setSelectedCatagories}
-        labelledBy={"Select"}
-      />
+               <Select
+     isMulti
+    name="colors"
+    value={selectedCatagory}
+
+    options={CatagoryOptionsData}
+    className="basic-multi-select"
+    classNamePrefix="select"
+     onChange={handleCatagoryChange}
+  />
+       
        <Label className="mt-3 ">   <strong>Specify Weight (optional)</strong>    </Label>
                     <Input
                   className="form-control-alternative mb-3 "
@@ -299,7 +411,7 @@ const NewProduct=()=> {
           <div className="text-center">
           <Button className="btn-icon btn-3 mt-5" color="success" type="submit"  >
           <span className="btn-inner--icon">
-            <i className="ni ni-check-bold" />
+            {LoadingOption?<Spinner color="primary" />:<i className="ni ni-check-bold" />}
           </span>
           <span className="btn-inner--text">All done</span>
         </Button>

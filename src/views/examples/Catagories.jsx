@@ -84,7 +84,7 @@ import {
 
                      } else{
                       alert("The file is successfully uploaded");
-                    window.location.reload(false);
+                  //  window.location.reload(false);
                      
                      }
                 
@@ -249,7 +249,7 @@ handleChange = event => {
               onClick={() => this.toggleModal("CatagoryModal")}
             >
               Close
-            </Button>
+            </Button> 
            
           </div>
         </Modal>
